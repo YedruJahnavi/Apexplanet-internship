@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bus Ticket Booking with Bus Gallery</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <h1>🚌 Bus Ticket Booking</h1>
+
+  <div id="bus-gallery">
+    <h2>Bus Gallery</h2>
+    <div class="gallery-container">
+      <img src="https://assets.telegraphindia.com/telegraph/2023/Sep/1694518755_mumbai.jpg"/>
+      <img src="https://www.indiancarrental.com/uploads/carrent/70964_1706011292.jpeg"/>
+      <img src="https://assets.volvo.com/is/image/VolvoInformationTechnologyAB/maroon-bus?qlt=82&wid=1024&ts=1660222495591&dpr=off&fit=constrain"/>
+      <img src="https://static.businessworld.in/1706191250_BgNC0n_Volvo_Buses.jpg" />
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwHB82MhAdZlKlZRG7vnkKtmbU4mrmpI5v9w&s" />
+      <img src="https://assets.volvo.com/is/image/VolvoInformationTechnologyAB/three-buses?qlt=82&wid=1024&ts=1660283760294&dpr=off&fit=constrain"/>
+    </div>
+  </div>
+
+  <form id="bookingForm" onsubmit="return false;">
+    <input type="text" id="name" placeholder="Your Name" required />
+    <br />
+    <input type="email" id="email" placeholder="Your Email" required />
+    <br />
+    <input type="date" id="travelDate" required />
+    <br />
+    <label for="route">Choose a Route:</label>
+    <select id="route">
+      <option value="2000">Hyderabad → Bangalore – ₹2000</option>
+      <option value="500">Chennai → Coimbatore – ₹500</option>
+      <option value="3500">Delhi → Mumbai – ₹3500</option>
+      <option value="1700">Hyderabad → Mumbai – ₹1700</option>
+      <option value="1000">Pune → Mumbai – ₹1000</option>
+    </select>
+  </form>
+
+  <div class="bus-layout">
+    <div class="seats-column" id="left-column"></div>
+    <div class="seats-column" id="right-column"></div>
+  </div>
+
+  <div class="summary">
+    <p>Selected Seats: <span id="count">0</span></p>
+    <p>Total Price: ₹<span id="total">0</span></p>
+    <button id="book">Book Now</button>
+    <p class="error" id="error-msg"></p>
+  </div>
+
+  <div id="todo-section">
+    <h2>To-Do List</h2>
+    <input type="text" id="todo-input" placeholder="Add new task..." />
+    <button id="add-todo-btn">Add</button>
+    <ul id="todo-list"></ul>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
