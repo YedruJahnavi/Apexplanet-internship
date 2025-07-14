@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FRESH BASKET</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: #f5f5f5;
+    }
+    header {
+      background-color: #61d56d;
+      color: white;
+      padding: 16px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .search-bar {
+      padding: 10px;
+      background-color: white;
+      display: flex;
+      justify-content: center;
+    }
+    .search-bar input {
+      width: 90%;
+      max-width: 500px;
+      padding: 10px 15px;
+      border: 1px solid #ccc;
+      border-radius: 25px;
+      font-size: 16px;
+    }
+    .categories {
+      display: flex;
+      overflow-x: auto;
+      background: #fff;
+      padding: 10px;
+      gap: 15px;
+      white-space: nowrap;
+      border-bottom: 1px solid #ddd;
+    }
+    .category {
+      background: #f0f0f0;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 500;
+      flex: 0 0 auto;
+    }
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 15px;
+      padding: 15px;
+    }
+    .product-card {
+      background: #fff;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .product-card img {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+    }
+    .product-card h4 {
+      margin: 10px 0 5px;
+      font-size: 16px;
+    }
+    .product-card p {
+      color: #555;
+      font-size: 14px;
+    }
+    .product-card button {
+      margin-top: 8px;
+      padding: 6px 12px;
+      border: none;
+      background-color: #61d56d;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .cart-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #61d56d;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 30px;
+      font-weight: bold;
+      font-size: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      cursor: pointer;
+    }
+    .cart-popup {
+      position: fixed;
+      bottom: 70px;
+      right: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      padding: 20px;
+      width: 300px;
+      max-height: 300px;
+      overflow-y: auto;
+      display: none;
+      z-index: 100;
+    }
+    .cart-popup h3 {
+      margin-top: 0;
+    }
+    .cart-popup ul {
+      list-style: none;
+      padding: 0;
+    }
+    .cart-popup li {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .remove-btn {
+      background: #e63946;
+      color: white;
+      border: none;
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .total {
+      font-weight: bold;
+      margin-top: 15px;
+    }
+    @media (max-width: 500px) {
+      .product-card img {
+        width: 60px;
+        height: 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>🛒 FRESH BASKET</header>
+  <div class="search-bar">
+    <input type="text" placeholder="Search for fruits, snacks, milk...">
+  </div>
+  <div class="categories">
+    <div class="category" onclick="loadProducts('fruits')">Fruits</div>
+    <div class="category" onclick="loadProducts('vegetables')">Vegetables</div>
+    <div class="category" onclick="loadProducts('snacks')">Snacks</div>
+    <div class="category" onclick="loadProducts('drinks')">Drinks</div>
+    <div class="category" onclick="loadProducts('dairy')">Dairy</div>
+    <div class="category" onclick="loadProducts('bakery')">Bakery</div>
+  </div>
+  <div class="products" id="product-container"></div>
+  <button class="cart-button" onclick="toggleCart()">View Cart (<span id="cart-count">0</span>)</button>
+  <div class="cart-popup" id="cart-popup">
+    <h3>Your Cart</h3>
+    <ul id="cart-items"></ul>
+    <div class="total">Total: ₹<span id="cart-total">0</span></div>
+  </div>
+  <script>
+    const allProducts = { fruits: [
+        { name: "Apple", price: 30, image: "https://cff2.earth.com/uploads/2022/03/25034219/Apples-scaled.jpg" },
+        { name: "Banana", price: 20, image: "https://www.refinery29.com/images/10329784.jpg?crop=40:21" },
+        { name: "Orange", price: 25, image: "https://tse3.mm.bing.net/th/id/OIP.8BxYZgCta0sUAY09ZY7hnAAAAA?pid=Api&P=0&h=180" },
+        { name: "Grapes", price: 40, image: "https://tse3.mm.bing.net/th/id/OIP.slsBGWhOT-c4qUYGy57xLAHaFj?pid=Api&P=0&h=180" },
+        { name: "Mango", price: 50, image: "https://tse2.mm.bing.net/th/id/OIP.b3Ht1YXzHYShnCCAPJkB_wHaHa?pid=Api&P=0&h=180" },
+        { name: "Pineapple", price: 60, image: "https://www.tasteofhome.com/wp-content/uploads/2019/02/pineapples_1283638660.jpg?fit=700" },
+        { name: "Watermelon", price: 35, image: "https://tse2.mm.bing.net/th/id/OIP.SwfLlIDQ_3Zini_UbRVGigHaE6?pid=Api&P=0&h=180" },
+        { name: "Strawberry", price: 45, image: "https://tse2.mm.bing.net/th/id/OIP.FO6nDVBVaxhBrjwwi7-XAgHaF_?pid=Api&P=0&h=180" },
+        { name: "Papaya", price: 30, image: "https://tse4.mm.bing.net/th/id/OIP.FT_eiUOtbGQ0DjWHZwWhlQHaGx?pid=Api&P=0&h=180" },
+        { name: "Kiwi", price: 55, image: "https://tse4.mm.bing.net/th/id/OIP.nYqXsw4Dyp38kIcW413mogHaE8?pid=Api&P=0&h=180" },
+        { name: "Pomegranate", price: 50, image: "https://tse1.mm.bing.net/th/id/OIP.fnqfC9PPRS4-TUj2OLSYeQHaF0?pid=Api&P=0&h=180" },
+        { name: "Guava", price: 25, image: "https://tse4.mm.bing.net/th/id/OIP.jj5-nFuG1zqQxoY0zLtzGQHaHa?pid=Api&P=0&h=180" },
+        { name: "Lychee", price: 60, image: "https://tse4.mm.bing.net/th/id/OIP.1doquuu1eryvnnYP11uZGAHaHa?pid=Api&P=0&h=180" },
+        { name: "Blueberry", price: 70, image: "https://tse2.mm.bing.net/th/id/OIP.BWC9E1nqU4QQNsgC0y8v5gHaE8?pid=Api&P=0&h=180" },
+        { name: "Muskmelon", price: 45, image: "https://tse3.mm.bing.net/th/id/OIP.oxVPu6Q0tTuYKkuK-x_fdQHaE8?pid=Api&P=0&h=180"},
+        { name: "Avocado", price: 80, image: "https://tse2.mm.bing.net/th/id/OIP.g-hpv8l_qSkyPjpzqIbvuQHaE8?pid=Api&P=0&h=180" },
+        { name: "Coconut", price: 35, image: "https://tse2.mm.bing.net/th/id/OIP.G-P1US3Os15E_acP6yNAkgHaGA?pid=Api&P=0&h=180" }
+      ],
+      vegetables: [
+        { name: "Potato", price: 25, image: "https://tse3.mm.bing.net/th/id/OIP.bTINhOqg4KhK9sUy4TV5PAHaEH?pid=Api&P=0&h=180"},
+        { name: "Carrot", price: 40, image: "https://tse2.mm.bing.net/th/id/OIP.TJqnAHySJZmW6X8alK7yeAHaEK?pid=Api&P=0&h=180"},
+        { name: "Radish", price: 60, image: "https://tse4.mm.bing.net/th/id/OIP.BVpD-HTUjp5-GXNfYB7J-wHaE6?pid=Api&P=0&h=180"},  
+        { name: "Beetroot", price: 40, image: "https://tse4.mm.bing.net/th/id/OIP.4b5sG3tKBRFdxBp3NuV-DgHaF1?pid=Api&P=0&h=180"},
+        { name: "Pumpkin", price: 40, image: "https://tse4.mm.bing.net/th/id/OIP.Sanb0yKgknLNe6Z21PKrFgHaE7?pid=Api&P=0&h=180"},
+        { name: "Garlic", price: 40, image: "https://tse1.mm.bing.net/th/id/OIP.0SNiStfjXfyKKzB6sD4kBQHaEK?pid=Api&P=0&h=180"},
+        { name: "Tomato", price: 30, image: "https://tse4.mm.bing.net/th/id/OIP.p--EgHE4Fq4rVFUaWBhVEwHaEz?pid=Api&P=0&h=180" },
+        { name: "Onion", price: 25, image: "https://tse4.mm.bing.net/th/id/OIP.s91VfTFUoRIm_4vi3xIv6QHaEK?pid=Api&P=0&h=180" },
+        { name: "Peas", price: 40, image: "https://tse2.mm.bing.net/th/id/OIP.qvvteSyVGlFS3vfv1CeafQHaFj?pid=Api&P=0&h=180"},
+        { name: "Cucumber", price: 40, image: "https://tse2.mm.bing.net/th/id/OIP.u6wBEHQE4uoqY8OJ9FJV_gHaE8?pid=Api&P=0&h=180"},
+        { name: "Ginger", price: 40, image: "https://tse2.mm.bing.net/th/id/OIP.zt0Sf40X_Y_63D0lWnqhBAHaEK?pid=Api&P=0&h=180"},
+        { name: "SweetPotato", price: 40, image: "https://tse3.mm.bing.net/th/id/OIP.-BIcKkiY4lWVpWfxX3jLvwHaFj?pid=Api&P=0&h=180"},
+        { name: "Coriander", price: 40, image: "https://tse2.mm.bing.net/th/id/OIP.KrHyNu-HhMDuYzQaQAAhHwHaEJ?pid=Api&P=0&h=180"},
+        { name: "Cabbage", price: 20, image: "https://tse4.mm.bing.net/th/id/OIP.K9tSTdbJzC9OrVqG5HwvsgHaDr?pid=Api&P=0&h=180" },
+        { name: "Cauliflower", price: 22, image: "https://tse2.mm.bing.net/th/id/OIP.lQ9sBnPaLzGPbkdQgJ-DqwHaE8?pid=Api&P=0&h=180" },
+        { name: "Brinjal", price: 28, image: "https://tse1.mm.bing.net/th/id/OIP.gYooydsu-DULip01DISTIAHaEK?pid=Api&P=0&h=180" },
+        { name: "Capsicum", price: 35, image: "https://tse2.mm.bing.net/th/id/OIP.veSezxKfeEEzsFD-QI9AkgHaE8?pid=Api&P=0&h=180" },
+        { name: "Spinach", price: 15, image: "https://tse3.mm.bing.net/th/id/OIP.Hr6cB3W-p0Hhabzefj87LQHaHa?pid=Api&P=0&h=180" },
+        { name: "Beans", price: 32, image: "https://tse2.mm.bing.net/th/id/OIP.uacdGNyJFsfS9BpklZxFqQHaE8?pid=Api&P=0&h=180" },
+        { name: "Bottle Gourd", price: 25, image: "https://tse4.mm.bing.net/th/id/OIP.PWnIw_QkpwYGL9Wl1AfDOQHaFc?pid=Api&P=0&h=180" },
+        { name: "Bitter Gourd", price: 30, image: "https://tse3.mm.bing.net/th/id/OIP.5-d0B6W8Rt4FouwKzA5WRgHaEK?pid=Api&P=0&h=180" }
+      ],
+      snacks: [
+        { name: "Chips", price: 25, image: "https://tse4.mm.bing.net/th/id/OIP.x0NS0mKiFMsnyfXCHD_PhgHaFj?pid=Api&P=0&h=180" },
+        { name: "Cookies", price: 40, image: "https://tse4.mm.bing.net/th/id/OIP.aEZwEEC72kQNYvUh_2cPiwHaHa?pid=Api&P=0&h=180" },
+        { name: "PeanutChikki", price: 25, image: "https://tse3.mm.bing.net/th/id/OIP.XdhZ-g4l_RTsmfb0NBm4JQHaJ4?pid=Api&P=0&h=180" },
+        { name: "5star", price: 40, image: "https://tse1.mm.bing.net/th/id/OIP.s4Dm4wLz1uNp3sGsg0G5UwHaHa?pid=Api&P=0&h=180" },
+        { name: "DairyMilk", price: 40, image: "https://tse2.mm.bing.net/th/id/OIP.WQ6uStrw0sibmJ4qV-IRSAHaHa?pid=Api&P=0&h=180" },
+        { name: "Snekers", price: 40, image: "https://tse2.mm.bing.net/th/id/OIP.mJOQVHqzXbKPeG49003OlwHaEN?pid=Api&P=0&h=180" },
+        { name: "MarieGold", price: 40, image: "https://tse2.mm.bing.net/th/id/OIP.D61QAcKm9SWvSl7bEzbKWQHaFA?pid=Api&P=0&h=180" },
+        { name: "Hide&Seek", price: 40, image: "https://tse4.mm.bing.net/th/id/OIP.eGdnXcdytsywawKsNUC5egHaD4?pid=Api&P=0&h=180" },
+        { name: "GoodDay", price: 40, image: "https://tse3.mm.bing.net/th/id/OIP.gs1isEV4N3bGKJ-Fo003MwHaDa?pid=Api&P=0&h=180" },
+        { name: "Oreo", price: 40, image: "https://tse3.mm.bing.net/th/id/OIP.0-Q2tio8jNtjwpWCHUOmBAHaEC?pid=Api&P=0&h=180" },
+        { name: "Lays", price: 40, image: "https://tse2.mm.bing.net/th/id/OIP.-GbIDCev1OaVYbtwSBhUDQHaHa?pid=Api&P=0&h=180" },
+        { name: "Kurkure", price: 40, image: "https://tse3.mm.bing.net/th/id/OIP.WaiRIDqTebdhXRTRCBtC7gHaHa?pid=Api&P=0&h=180" },
+        { name: "Bourbon", price: 40, image: "https://tse3.mm.bing.net/th/id/OIP.4su70OCAq_VkmI9QVnNUJgHaGU?pid=Api&P=0&h=180" },
+        { name: "Darkfantasy", price: 40, image: "https://tse2.mm.bing.net/th/id/OIP.UYyWkgfAxyr3Z9U70qBVXwHaGM?pid=Api&P=0&h=180" },
+        { name: "Lotte Choco Pie", price: 40, image: "https://tse3.mm.bing.net/th/id/OIP.OyWZ3zsuEOAjOnpHpRLZGAHaGP?pid=Api&P=0&h=180" },
+        { name: "Popcorn", price: 30, image: "https://tse2.mm.bing.net/th/id/OIP.h1tifceAwzQ__5lUbSUlfgHaEK?pid=Api&P=0&h=180" },
+        { name: "Nachos", price: 35, image: "https://tse2.mm.bing.net/th/id/OIP.3XLXqfjHwjouY0oFZKOZIwHaE8?pid=Api&P=0&h=180" },
+        { name: "Chocolate Bar", price: 45, image: "https://tse1.mm.bing.net/th/id/OIP.h54rPryYFym-ou4irgwlRAHaEJ?pid=Api&P=0&h=180" },
+        { name: "Mixture", price: 38, image: "https://tse2.mm.bing.net/th/id/OIP.xzUDLTY0kuBAWHrs8qBUTwHaEK?pid=Api&P=0&h=180" },
+        { name: "Energy Bar", price: 50, image: "https://tse3.mm.bing.net/th/id/OIP.HN8aIDYwnrj4C4FcGfIN6AHaFJ?pid=Api&P=0&h=180" },
+        { name: "Namkeen", price: 32, image: "https://www.globaltorque.co.in/upload/category/namkeen.jpg" },
+        { name: "Samosa", price: 20, image: "https://tse1.mm.bing.net/th/id/OIP.IKtVD6YcX-yZ7fdvfIRLfQHaHn?pid=Api&P=0&h=180" },
+        { name: "Donuts", price: 55, image: "https://tse2.mm.bing.net/th/id/OIP.NdjUD9GN9O462l6Lx8HsWgHaD4?pid=Api&P=0&h=180" }
+      ],
+      drinks: [
+        { name: "Coca-Cola", price: 35, image: "https://tse2.mm.bing.net/th/id/OIP.6o8QPdkJw1y8nIwL0iDacwHaEK?pid=Api&P=0&h=180" },
+        { name: "Thums up", price: 35, image: "https://tse2.mm.bing.net/th/id/OIP.ch304rWuEWT9sCZ3UxHguAHaII?pid=Api&P=0&h=180" },
+        { name: "Sprite", price: 35, image: "https://tse2.mm.bing.net/th/id/OIP.vqjYc7Sh3n82qi4fa6CQxAHaFj?pid=Api&P=0&h=180" },
+        { name: "Fanta", price: 35, image: "https://tse1.mm.bing.net/th/id/OIP.EEnUdJnKxlyi5yo8vzZ5SAHaHa?pid=Api&P=0&h=180" },
+        { name: "Maaza", price: 35, image: "https://tse1.mm.bing.net/th/id/OIP.FbVizqN_KoYilSwTbJETwQHaHa?pid=Api&P=0&h=180" },
+        { name: "ButterMilk", price: 35, image: "https://tse3.mm.bing.net/th/id/OIP.FAdJUPyYkOSrgYK8Ys1Z0gHaE6?pid=Api&P=0&h=180" },
+        { name: "Limca", price: 35, image: "https://tse1.mm.bing.net/th/id/OIP.US2ZXkWueHalZX0QzYD0rgHaE8?pid=Api&P=0&h=180" },
+        { name: "Lassi", price: 35, image: "https://tse2.mm.bing.net/th/id/OIP.I2m_Cqlrx5K8nLjrNm_22wHaLH?pid=Api&P=0&h=180" },
+        { name: "Pepsi", price: 35, image: "https://tse1.mm.bing.net/th/id/OIP.VkWFKk_TA6CvB3URGNkLWQHaGq?pid=Api&P=0&h=180" },
+        { name: "Appy Fizz", price: 35, image: "https://tse2.mm.bing.net/th/id/OIP.30z13C0y8wbLenh3QGHP3AHaLH?pid=Api&P=0&h=180" },
+        { name: "Slice", price: 35, image: "https://tse3.mm.bing.net/th/id/OIP.kgk9Boh6-sCeM9691yecKAHaHa?pid=Api&P=0&h=180" },
+        { name: "Red Bull", price: 35, image: "https://tse2.mm.bing.net/th/id/OIP.XQk7HfQGWYm8JMa7lmRjOQHaEo?pid=Api&P=0&h=180" },
+        { name: "Sting", price: 35, image: "https://tse2.mm.bing.net/th/id/OIP.ck3ACc6AvdRtdDDWwzYesAHaIV?pid=Api&P=0&h=180" },
+        { name: "Mountain Dew", price: 35, image: "https://tse1.mm.bing.net/th/id/OIP.lRkCVp7l0b-mBzpiJl7AiQHaE8?pid=Api&P=0&h=180" },
+        { name: "Frooti", price: 35, image: "https://tse2.mm.bing.net/th/id/OIP.YEvGeOTWYgIcyv89lCen8QHaE8?pid=Api&P=0&h=180" },
+        { name: "Mirinda", price: 35, image: "https://tse4.mm.bing.net/th/id/OIP.fGpK9RKhBBiZAx7ONLk0fQHaD4?pid=Api&P=0&h=180" },
+        { name: "Cold Coffee", price: 35, image: "https://tse3.mm.bing.net/th/id/OIP._n2gEHgiNSkw6fw5DLtO4wHaO0?pid=Api&P=0&h=180" },
+        { name: "Kinley Soda", price: 35, image: "https://tse3.mm.bing.net/th/id/OIP.47eDi4jNJlCoixQ2Ud1trAHaFW?pid=Api&P=0&h=180" },
+        { name: "7up", price: 35, image: "https://tse4.mm.bing.net/th/id/OIP.3QDlwPWg-cYR2MLatrSgLQHaH7?pid=Api&P=0&h=180" },
+        { name: "Diet Coke", price: 35, image: "https://tse1.mm.bing.net/th/id/OIP.CyQfEQBoRuvx1XoYMEzcDAHaJQ?pid=Api&P=0&h=180" },
+        { name: "Pulpy Orange", price: 45, image: "https://tse4.mm.bing.net/th/id/OIP.kRWG_8TWCbahUSxxNsVoWgHaJQ?pid=Api&P=0&h=180" }
+      ],
+      dairy: [
+        { name: "Milk", price: 25, image: "https://tse2.mm.bing.net/th/id/OIP.MIT3kvM1yHTzt8o02TE5_gHaFj?pid=Api&P=0&h=180" },
+        { name: "Curd", price: 20, image: "https://tse2.mm.bing.net/th/id/OIP.LYaO4hhq3gVg4WDvGuNbcAHaEK?pid=Api&P=0&h=180" },
+        { name: "Cheese Slices", price: 80, image: "https://tse4.mm.bing.net/th/id/OIP.gnhjnfaWH8NZV3EIaFGQ4wHaFj?pid=Api&P=0&h=180" },
+        { name: "Cheddar Cheese", price: 90, image: "https://tse3.mm.bing.net/th/id/OIP.-CeV9aphIWT4eIdCBhdaqQHaFj?pid=Api&P=0&h=180" },
+        { name: "Butter", price: 50, image: "https://tse3.mm.bing.net/th/id/OIP._zmgcbkfsoh0TuClUvDPAgHaEp?pid=Api&P=0&h=180" },
+        { name: "Ghee", price: 120, image: "https://tse3.mm.bing.net/th/id/OIP.vVjICRf0AxlyOrU7NvahAAHaHa?pid=Api&P=0&h=180" },
+        { name: "Fresh Cream", price: 60, image: "https://tse4.mm.bing.net/th/id/OIP.woR14KkMXXR-rDCIK7oMaAHaE8?pid=Api&P=0&h=180" },
+        { name: "Flavored Milk", price: 35, image: "https://tse3.mm.bing.net/th/id/OIP.v8hyp3457ofV8jXk06x_ZgHaHa?pid=Api&P=0&h=180" },
+        { name: "Milk Powder", price: 85, image: "https://tse4.mm.bing.net/th/id/OIP.hqMjedD0vxyVCdxkgjqBxgHaE6?pid=Api&P=0&h=180" },
+        { name: "Lassi", price: 40, image: "https://tse1.mm.bing.net/th/id/OIP.a5L56Vh8RRzWiqG-hrEE1AHaLO?pid=Api&P=0&h=180" },
+        { name: "Buttermilk", price: 15, image: "https://tse1.mm.bing.net/th/id/OIP.oxNHYwBPA5QXGxYGTRyONAHaHa?pid=Api&P=0&h=180" },
+        { name: "Yogurt", price: 25, image: "https://tse4.mm.bing.net/th/id/OIP.4ooqs9QGdq2NLjv-pYH61AHaLH?pid=Api&P=0&h=180" },
+        { name: "Khoya", price: 60, image: "https://tse3.mm.bing.net/th/id/OIP.LaTlB3rxCDrrbity2PQTxwHaLH?pid=Api&P=0&h=180" },
+        { name: "Malted Milk Drink", price: 55, image: "https://tse2.mm.bing.net/th/id/OIP.Xzq75o0eSrkzhnzBpNRTsgHaHa?pid=Api&P=0&h=180" }
+      ],
+      bakery: [
+        { name: "Bread", price: 30, image: "https://tse2.mm.bing.net/th/id/OIP.kvjue-d9e1PVMECTs4YeGAHaE8?pid=Api&P=0&h=180" },
+        { name: "Swiss roll", price: 30, image: "https://tse2.mm.bing.net/th/id/OIP.uuu9ZrKwpcZJl0pj4D8T8gHaFT?pid=Api&P=0&h=180" },
+        { name: "Roll cake", price: 30, image: "https://tse4.mm.bing.net/th/id/OIP.iwsqwIyl2nu4L5NkDt6TQgHaLH?pid=Api&P=0&h=180" },
+        { name: "Cream Roll", price: 30, image: "https://tse3.mm.bing.net/th/id/OIP.uj9-Th6oc58ybeXSRfgNxwHaEK?pid=Api&P=0&h=180" },
+        { name: "Cake", price: 60, image: "https://tse1.mm.bing.net/th/id/OIP.LqTPQvJwXy-YOHA9NhB_YAHaHa?pid=Api&P=0&h=180" },
+        { name: "Brown Bread", price: 35, image: "https://tse2.mm.bing.net/th/id/OIP.qqd8ikDhBkFUzUR-xqepjQHaLG?pid=Api&P=0&h=180" },
+        { name: "Cupcake", price: 25, image: "https://tse2.mm.bing.net/th/id/OIP.0xYpbQLP71c6Nm7Mxexe-gHaFj?pid=Api&P=0&h=180" },
+        { name: "Donut", price: 35, image: "https://tse2.mm.bing.net/th/id/OIP.t049udynJHm_HIMjrz9V2gHaE8?pid=Api&P=0&h=180" },
+        { name: "Puff", price: 20, image: "https://tse2.mm.bing.net/th/id/OIP.R1Yonl1euQiedfJT7qOYawHaHa?pid=Api&P=0&h=180" },
+        { name: "Croissant", price: 40, image: "https://tse1.mm.bing.net/th/id/OIP.tkb7l6QJg4csrSU6RZYZRwHaE8?pid=Api&P=0&h=180" },
+        { name: "Muffin", price: 28, image: "https://tse3.mm.bing.net/th/id/OIP.YiYLnso8xZQ8E9hRNMo4qwHaHa?pid=Api&P=0&h=180" },
+        { name: "Toast Rusk", price: 25, image: "https://tse4.mm.bing.net/th/id/OIP.1DFajJ5LgiyXaRIT8p9iwwHaFn?pid=Api&P=0&h=180" },
+        { name: "Cookies", price: 40, image: "https://tse3.mm.bing.net/th/id/OIP.fP0r5Emt6wt4okVIC_IpCgHaHa?pid=Api&P=0&h=180" },
+        { name: "Garlic Bread", price: 32, image: "https://tse3.mm.bing.net/th/id/OIP.eHL5l0RTO5vw_TBW4JlxfAHaHo?pid=Api&P=0&h=180" },
+        { name: "Buns", price: 15, image: "https://tse3.mm.bing.net/th/id/OIP.oHtxCSvVfir2G1Eh0EqNxwHaE0?pid=Api&P=0&h=180" },
+        { name: "Cream Bun", price: 35, image: "https://tse4.mm.bing.net/th/id/OIP.7sUIzbQhXPqO7KKyOiPMfAHaHg?pid=Api&P=0&h=180" },
+        { name: "Danish Pastry", price: 45, image: "https://tse2.mm.bing.net/th/id/OIP.PsTGFK1OURiculMvNUinXQHaGn?pid=Api&P=0&h=180" },
+        { name: "Fruit Cake", price: 55, image: "https://tse1.mm.bing.net/th/id/OIP.zCW_Umfjz0-6kHU4boUPlgHaJ2?pid=Api&P=0&h=180" }
+      ]
+    };
+
+    let cart = [];
+
+    function loadProducts(category) {
+      const container = document.getElementById("product-container");
+      container.innerHTML = "";
+      allProducts[category].forEach(product => {
+        const card = document.createElement("div");
+        card.className = "product-card";
+        card.innerHTML = `
+          <img src="${product.image}" alt="${product.name}" />
+          <h4>${product.name}</h4>
+          <p>₹${product.price}</p>
+          <button onclick='addToCart(${JSON.stringify(product)})'>Add to Cart</button>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function searchProducts(query) {
+      const container = document.getElementById("product-container");
+      container.innerHTML = "";
+      const lowerQuery = query.toLowerCase();
+      let matched = [];
+      for (let category in allProducts) {
+        matched = matched.concat(allProducts[category].filter(product =>
+          product.name.toLowerCase().includes(lowerQuery)
+        ));
+      }
+      if (matched.length === 0) {
+        container.innerHTML = "<p>No products found.</p>";
+        return;
+      }
+      matched.forEach(product => {
+        const card = document.createElement("div");
+        card.className = "product-card";
+        card.innerHTML = `
+          <img src="${product.image}" alt="${product.name}" />
+          <h4>${product.name}</h4>
+          <p>₹${product.price}</p>
+          <button onclick='addToCart(${JSON.stringify(product)})'>Add to Cart</button>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    document.querySelector(".search-bar input").addEventListener("input", function () {
+      const value = this.value.trim();
+      if (value === "") {
+        loadProducts("fruits");
+      } else {
+        searchProducts(value);
+      }
+    });
+
+    function addToCart(product) {
+      const found = cart.find(item => item.name === product.name);
+      if (found) {
+        found.qty += 1;
+      } else {
+        cart.push({ ...product, qty: 1 });
+      }
+      updateCart();
+    }
+
+    function updateCart() {
+      const list = document.getElementById("cart-items");
+      list.innerHTML = "";
+      let total = 0;
+      let count = 0;
+      cart.forEach((item, index) => {
+        total += item.price * item.qty;
+        count += item.qty;
+        const li = document.createElement("li");
+        li.innerHTML = `
+          ${item.name} x${item.qty} - ₹${item.price * item.qty}
+          <button class="remove-btn" onclick="removeItem(${index})">✕</button>
+        `;
+        list.appendChild(li);
+      });
+      document.getElementById("cart-count").innerText = count;
+      document.getElementById("cart-total").innerText = total;
+    }
+
+    function removeItem(index) {
+      cart.splice(index, 1);
+      updateCart();
+    }
+
+    function toggleCart() {
+      const popup = document.getElementById("cart-popup");
+      popup.style.display = popup.style.display === "block" ? "none" : "block";
+    }
+
+    loadProducts('fruits');
+  </script>
+</body>
+</html>
