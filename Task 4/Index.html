@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FRESH BASKET</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>🛒 FRESH BASKET</header>
+
+  <div class="search-bar">
+    <input type="text" placeholder="Search for fruits, snacks, milk...">
+  </div>
+
+  <div class="categories">
+    <div class="category" onclick="loadProducts('fruits')">Fruits</div>
+    <div class="category" onclick="loadProducts('vegetables')">Vegetables</div>
+    <div class="category" onclick="loadProducts('snacks')">Snacks</div>
+    <div class="category" onclick="loadProducts('drinks')">Drinks</div>
+    <div class="category" onclick="loadProducts('dairy')">Dairy</div>
+    <div class="category" onclick="loadProducts('bakery')">Bakery</div>
+  </div>
+
+  <div class="products" id="product-container"></div>
+
+  <button class="cart-button" onclick="toggleCart()">View Cart (<span id="cart-count">0</span>)</button>
+
+  <div class="cart-popup" id="cart-popup">
+    <h3>Your Cart</h3>
+    <ul id="cart-items"></ul>
+    <div class="total">Total: ₹<span id="cart-total">0</span></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
