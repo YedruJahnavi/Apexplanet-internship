@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GirlStyle – Fashion App</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>GirlStyle</h1>
+    <nav>
+      <button onclick="showSection('home')">Home</button>
+      <button onclick="showSection('shop')">Shop</button>
+      <button onclick="showSection('cart')">Cart 🛒</button>
+      <button onclick="showSection('wishlist')">Wishlist</button>
+      <button onclick="showSection('login')">Login</button>
+      <button onclick="toggleTheme()">🌙</button>
+    </nav>
+  </header>
+
+  <section id="home" class="active">
+    <h2>Welcome to GirlStyle 💃</h2>
+    <p>Explore stylish Tops, Kurtis, Sarees, Dresses, Jackets & more!</p>
+  </section>
+
+  <section id="shop">
+    <h2>Shop</h2>
+    <input type="text" placeholder="Search products..." class="input" oninput="searchProducts(this.value)">
+    <div class="filter-bar">
+      <strong>Filter:</strong>
+      <button onclick="filterCategory('All')">All</button>
+      <button onclick="filterCategory('Tops')">Tops</button>
+      <button onclick="filterCategory('Kurtis')">Kurtis</button>
+      <button onclick="filterCategory('Sarees')">Sarees</button>
+      <button onclick="filterCategory('Skirts')">Skirts</button>
+      <button onclick="filterCategory('Dresses')">Dresses</button>
+      <button onclick="filterCategory('Jackets')">Jackets</button>
+    </div>
+    <div id="product-list"></div>
+  </section>
+
+  <section id="cart">
+    <h2>Your Cart 🛍️</h2>
+    <ul id="cart-items"></ul>
+    <h3 id="cart-total"></h3>
+  </section>
+
+  <section id="wishlist">
+    <h2>Your Wishlist</h2>
+    <ul id="wishlist-items"></ul>
+  </section>
+
+  <section id="login">
+    <h2>Login</h2>
+    <input class="input" placeholder="Email" /><br><br>
+    <input class="input" type="password" placeholder="Password" /><br><br>
+    <button class="btn">Login</button>
+  </section>
+
+  <footer>
+    <p>© 2025 GirlStyle. All rights reserved.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
